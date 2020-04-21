@@ -6,6 +6,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:todo/utils/utils_files.dart';
 
 import '../menu_object.dart';
+import '../task_object.dart';
 import '../tools.dart';
 import 'base_element.dart';
 
@@ -35,7 +36,7 @@ class DatabaseHelper {
           onCreate: (Database database, int version) {
             new Tools().createTable(database);
             new MenuObject().createTable(database);
-
+            new TaskObject().createTable(database);
           });
       return db;
     }catch(e){
@@ -84,6 +85,17 @@ class DatabaseHelper {
       return tools;
     }
     return null;
+  }
+
+  Future<List<TaskObject>> getListTaskObjectWitMenuId({@required String menuId, @required String dayId}) async{
+    List<TaskObject> list = [];
+    Database dbClient = await db;
+    List<Map> maps = await dbClient.query(TaskObject.nameCollection,where: 'menuId = ? AND dayId = ?', whereArgs: [menuId,dayId], columns: TaskObject().columns(),orderBy: "timestamp desc");
+    for(Map map in maps){
+      TaskObject taskObject = new TaskObject.sqlFromMap(map);
+      list.add(taskObject);
+    }
+    return list;
   }
 
 }

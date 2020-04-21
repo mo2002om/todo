@@ -1,10 +1,14 @@
-
 import 'package:flutter/material.dart';
+import 'package:todo/app_localizations.dart';
 import 'package:todo/models/menu_object.dart';
+import 'package:todo/ui/detail_page.dart';
+import 'package:todo/utils/utils_string.dart';
 
 class MenuObjectCell extends StatefulWidget {
   final MenuObject menu;
-  const MenuObjectCell({Key key, this.menu}) : super(key: key);
+  final VoidCallback onShow;
+
+  const MenuObjectCell({Key key, this.menu,@required this.onShow}) : super(key: key);
   @override
   _MenuObjectCellState createState() => _MenuObjectCellState();
 }
@@ -12,19 +16,22 @@ class MenuObjectCell extends StatefulWidget {
 class _MenuObjectCellState extends State<MenuObjectCell> {
   @override
   Widget build(BuildContext context) {
+    double percentComplete = widget.menu.percentComplete();
     return Padding(
       padding: EdgeInsets.only(left: 10.0, right: 10.0, bottom: 30.0),
       child: InkWell(
         onTap: () {
-//                        Navigator.of(context).push(
-//                          PageRouteBuilder(
-//                            pageBuilder: (BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) => DetailPage(todoObject: todoObject),
-//                            transitionDuration: Duration(milliseconds: 1000),
-//                          ),
-//                        );
+          widget.onShow();
         },
         child: Container(
-          decoration: BoxDecoration(borderRadius: BorderRadius.circular(10.0), boxShadow: [BoxShadow(color: Colors.black.withAlpha(70), offset: Offset(3.0, 10.0), blurRadius: 15.0)]),
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10.0),
+              boxShadow: [
+                BoxShadow(
+                    color: Colors.black.withAlpha(70),
+                    offset: Offset(3.0, 10.0),
+                    blurRadius: 15.0)
+              ]),
           height: 250.0,
           child: Stack(
             children: <Widget>[
@@ -55,13 +62,17 @@ class _MenuObjectCellState extends State<MenuObjectCell> {
                                 tag: widget.menu.id + "_icon",
                                 child: Container(
                                   decoration: BoxDecoration(
-                                    color: Colors.white,
+                                    color: widget.menu.themeMenu.color,
                                     shape: BoxShape.circle,
-                                    border: Border.all(color: Colors.grey.withAlpha(70), style: BorderStyle.solid, width: 1.0),
+                                    border: Border.all(
+                                        color: Colors.black.withAlpha(70),
+                                        style: BorderStyle.solid,
+                                        width: 1.0),
                                   ),
                                   child: Padding(
                                     padding: EdgeInsets.all(8.0),
-                                    child: Icon(Icons.timelapse, color: Colors.orange),
+                                    child: Icon(widget.menu.themeMenu.icon,
+                                        color: Colors.white),
                                   ),
                                 ),
                               ),
@@ -76,7 +87,7 @@ class _MenuObjectCellState extends State<MenuObjectCell> {
                       child: Material(
                           color: Colors.transparent,
                           child: Text(
-                            "10 " + " Tasks",
+                            widget.menu.tasks.length.toString() + getTranslated(context, "tasks"),
                             style: TextStyle(),
                             softWrap: false,
                           )),
@@ -87,8 +98,9 @@ class _MenuObjectCellState extends State<MenuObjectCell> {
                       child: Material(
                         color: Colors.transparent,
                         child: Text(
-                          widget.menu.name,
-                          style: TextStyle(fontSize: 30.0),
+                          getTranslated(context, widget.menu.name),
+                          style: TextStyle(
+                              fontSize: 20.0, fontWeight: FontWeight.bold),
                           softWrap: false,
                         ),
                       ),
@@ -102,14 +114,15 @@ class _MenuObjectCellState extends State<MenuObjectCell> {
                           children: <Widget>[
                             Expanded(
                               child: LinearProgressIndicator(
-                                value: 0.3,
+                                value: percentComplete,
                                 backgroundColor: Colors.grey.withAlpha(50),
-                                valueColor: AlwaysStoppedAnimation<Color>(Colors.redAccent),
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                    widget.menu.themeMenu.color),
                               ),
                             ),
                             Padding(
                               padding: EdgeInsets.only(left: 5.0),
-                              child: Text((0.3 * 100).round().toString() + "%"),
+                              child: Text((percentComplete * 100).round().toString() + "%"),
                             )
                           ],
                         ),

@@ -225,3 +225,10 @@ String rootYearCode(
       return _stringML();
   }
 }
+
+
+Future<TimeOfDay> selectTime({@required BuildContext context,@required DateTime dateTime}) {
+  return showTimePicker(
+      context: context,
+      initialTime: TimeOfDay(hour: dateTime.hour, minute: dateTime.minute));
+}

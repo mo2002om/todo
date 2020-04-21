@@ -144,3 +144,8 @@ String getHijriWithDateTime(DateTime dateTime){
   return _format.toFormat("DDDD / dd / MMMM / yyyy هـ");
 }
 
+String colorToStringHex({Color color}){
+  var hex = '#${color.value.toRadixString(16)}';
+  return hex;
+}
+

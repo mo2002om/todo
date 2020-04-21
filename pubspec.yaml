@@ -30,6 +30,7 @@ dependencies:
   fl_chart: ^0.9.0
   hijri_picker: ^0.0.35
   flutter_local_notifications: ^1.4.1
+  animated_floatactionbuttons: ^0.1.0
 
 dev_dependencies:
   flutter_test:

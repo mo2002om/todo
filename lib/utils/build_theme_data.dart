@@ -64,7 +64,7 @@ ThemeData buildThemeDataEn() {
       );
 }
 
-Color colorHex({String colorStr}) {
+Color getColorHex({String colorStr}) {
   return Color(getColorHexFromStr(colorStr));
 }
 

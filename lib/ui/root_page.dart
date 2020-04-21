@@ -1,11 +1,20 @@
 
+import 'dart:async';
+
+import 'package:animated_floatactionbuttons/animated_floatactionbuttons.dart';
 import 'package:flutter/material.dart';
 import 'package:todo/app_localizations.dart';
 import 'package:todo/cells/menu_object_cell.dart';
+import 'package:todo/models/helpers/database_helper.dart';
 import 'package:todo/models/menu_object.dart';
+import 'package:todo/models/task_object.dart';
 import 'package:todo/models/tools.dart';
 import 'package:intl/intl.dart';
+import 'package:todo/utils/utils_DateTime.dart';
+import 'package:todo/utils/utils_string.dart';
+import 'package:todo/widgets/my_widget_loading.dart';
 
+import 'detail_page.dart';
 import 'setting_page.dart';
 
 class RootPage extends StatefulWidget {
@@ -17,9 +26,26 @@ class RootPage extends StatefulWidget {
 
 class _RootPageState extends State<RootPage> with TickerProviderStateMixin{
   ScrollController scrollController;
+  Color backgroundColor;
+  LinearGradient backgroundGradient;
+  Tween<Color> colorTween;
+  Color constBackColor;
+  DatabaseHelper _databaseHelper;
+  StreamController _streamController = StreamController();
+  set _menuObjectStream(List<MenuObject> list) {
+    _streamController.sink.add(list);
+  }
+  get _menuObjectStream => _streamController.stream;
+  int sumTask = 0;
+
   @override
   void initState() {
     super.initState();
+    _databaseHelper = new DatabaseHelper();
+    initListMenuObject();
+    colorTween = ColorTween(begin: listMenus[0].themeMenu.color, end: listMenus[0].themeMenu.color);
+    backgroundColor = listMenus[0].themeMenu.color;
+    backgroundGradient = listMenus[0].gradient;
     scrollController = ScrollController();
     scrollController.addListener(() {
       ScrollPosition position = scrollController.position;
@@ -29,24 +55,38 @@ class _RootPageState extends State<RootPage> with TickerProviderStateMixin{
       if (listMenus.length - 1 < page + 1) {
         return;
       }
-      print("page == $page");
+      colorTween.begin = listMenus[page].themeMenu.color;
+      colorTween.end = listMenus[page + 1].themeMenu.color;
       setState(() {
-
+        backgroundColor = colorTween.transform(percent);
+        backgroundGradient = listMenus[page].gradient.lerpTo(listMenus[page + 1].gradient, percent);
       });
     });
+  }
+  initListMenuObject()async{
+    sumTask = 0;
+    List<MenuObject> list = [];
+    for(MenuObject menuObject in listMenus){
+      List<TaskObject> listTaskObject = await _databaseHelper.getListTaskObjectWitMenuId(menuId: menuObject.id, dayId: getDayId());
+      if(listTaskObject.length > 0){
+        menuObject.tasks = listTaskObject;
+        sumTask += listTaskObject.length;
+        list.add(menuObject);
+      }
+    }
+    _menuObjectStream = list;
   }
 
   @override
   void dispose() {
     super.dispose();
     scrollController.dispose();
+    _streamController?.close();
   }
   @override
   Widget build(BuildContext context) {
-    final double _width = MediaQuery.of(context).size.width;
-
     return Container(
-      decoration: BoxDecoration(gradient: LinearGradient(colors: [Colors.deepOrange , Colors.amber], begin: Alignment.bottomCenter, end: Alignment.topCenter)),
+      decoration: BoxDecoration(gradient: backgroundGradient),
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: AppBar(
@@ -54,27 +94,26 @@ class _RootPageState extends State<RootPage> with TickerProviderStateMixin{
           elevation: 0.0,
           title: Text(getTranslated(context, "appName")),
           centerTitle: true,
-          leading: IconButton(
-            icon: Icon(Icons.menu),
-            onPressed: () {},
-          ),
           actions: <Widget>[
-            IconButton(
-              icon: Icon(
-                Icons.language,
-                size: 26.0,
-              ),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    fullscreenDialog: true,
-                    builder: (BuildContext context) => SettingsPage(
-                      tools: widget.tools,
+            Padding(
+              padding: const EdgeInsets.only(left: 16,right: 16),
+              child: IconButton(
+                icon: Icon(
+                  Icons.settings,
+                  size: 26.0,
+                ),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      fullscreenDialog: true,
+                      builder: (BuildContext context) => SettingsPage(
+                        tools: widget.tools,
+                      ),
                     ),
-                  ),
-                );
-              },
+                  );
+                },
+              ),
             )
           ],
         ),
@@ -85,27 +124,27 @@ class _RootPageState extends State<RootPage> with TickerProviderStateMixin{
             Padding(
               padding: EdgeInsets.only(left: 50.0,right: 50.0),
               child: Text(
-                "Hello, John.",
-                style: TextStyle(color: Colors.white, fontSize: 30.0),
+                getTranslated(context, "welcome"),
+                style: TextStyle(color: Colors.white, fontSize: 20.0,fontWeight: FontWeight.bold),
               ),
             ),
             Spacer(),
             Padding(
               padding: EdgeInsets.only(left: 50.0,right: 50.0),
               child: Text(
-                "الأعمال اليومية",
-                style: TextStyle(color: Colors.white70),
+                getTranslated(context, "YourJobToday"),
+                style: TextStyle(color: Colors.white),
               ),
             ),
             Padding(
               padding: EdgeInsets.only(left: 50.0,right: 50.0),
               child: Text(
-                "لديك 10 مهام للقيام بها اليوم.",
-                style: TextStyle(color: Colors.white70),
+                getTranslated(context, "YouHave") + sumTask.toString() + getTranslated(context, "tasksToDoToday"),
+                style: TextStyle(color: Colors.white),
               ),
             ),
             Spacer(
-              flex: 2,
+              flex: 1,
             ),
             Padding(
               padding: EdgeInsets.only(left: 50.0,right: 50.0),
@@ -113,14 +152,14 @@ class _RootPageState extends State<RootPage> with TickerProviderStateMixin{
                 text: TextSpan(
                   children: [
                     TextSpan(
-                      text: "TODAY : ",
+                      text: getTranslated(context, "today"),
                       style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                     TextSpan(
-                      text: DateFormat.yMMMMd().format(DateTime.now()),
+                      text: rootDateFull(context: context, calendarId: widget.tools.calendarId, dateTime: new DateTime.now()),
                       style: TextStyle(
                         color: Colors.white,
                       ),
@@ -132,48 +171,103 @@ class _RootPageState extends State<RootPage> with TickerProviderStateMixin{
             Spacer(),
             Expanded(
               flex: 20,
-              child: ListView.builder(
-                itemBuilder: (context, index) {
-                  MenuObject menu = listMenus[index];
-                  return new MenuObjectCell(menu: menu,);
-                },
-                padding: EdgeInsets.only(left: 40.0, right: 40.0),
-                scrollDirection: Axis.horizontal,
-                physics: _CustomScrollPhysics(),
-                controller: scrollController,
-                itemExtent: _width - 80,
-                itemCount: listMenus.length,
-              ),
+              child: _streamBuilder(),
             ),
             Spacer(
               flex: 2,
             ),
           ],
         ),
+        floatingActionButton: Padding(
+          padding: const EdgeInsets.only(bottom: 20),
+          child: AnimatedFloatingActionButton(
+              fabButtons: listMenus.map((MenuObject m){
+                return Container(
+                  child: FloatingActionButton(
+                    onPressed: () => _selectMenuObject(menuObject: m),
+                    heroTag: m.id,
+                    elevation: 0.0,
+                    tooltip: getTranslated(context, m.name),
+                    child: Icon(m.themeMenu.icon),
+                    backgroundColor: m.themeMenu.color,
+                  ),
+                );
+              }).toList(),
+              colorStartAnimation: Theme.of(context).primaryColor,
+              colorEndAnimation: Theme.of(context).primaryColorDark,
+              animatedIconData: AnimatedIcons.add_event //To principal button
+          ),
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.endDocked ,
       ),
     );
+  }
+  Widget _streamBuilder(){
+    return new StreamBuilder(
+      stream: _menuObjectStream,
+      builder: (BuildContext context, AsyncSnapshot snapshot) {
+        if (!snapshot.hasData){
+          return new Container();
+        }
+        List<MenuObject> list = snapshot.data;
+        if (list.length == 0){
+          return new MyWidgetNull(color: Colors.white,);
+        }
+        return new ListView.builder(
+          itemBuilder: (context, index) {
+            MenuObject menu = list[index];
+
+            return new MenuObjectCell(
+              menu: menu,
+              onShow: ()=> _selectMenuObject(menuObject: menu),
+            );
+          },
+          padding: EdgeInsets.only(left: 40.0, right: 40.0),
+          scrollDirection: Axis.horizontal,
+          physics: _CustomScrollPhysics(list),
+          controller: scrollController,
+          itemExtent: MediaQuery.of(context).size.width - 80,
+          itemCount: list.length,
+        );
+      },
+    );
+  }
+
+
+  _selectMenuObject({MenuObject menuObject}) async{
+   await Navigator.of(context).push(
+      PageRouteBuilder(
+        pageBuilder: (BuildContext context, Animation<double> animation,
+            Animation<double> secondaryAnimation) =>
+            DetailPage(menuObject: menuObject,isEdit: true,),
+        transitionDuration: Duration(milliseconds: 500),
+      ),
+    );
+   initListMenuObject();
+
   }
 
 }
 
 class _CustomScrollPhysics extends ScrollPhysics {
-  _CustomScrollPhysics({
+  final List<MenuObject> list;
+  _CustomScrollPhysics(this.list, {
     ScrollPhysics parent,
   }) : super(parent: parent);
 
   @override
   _CustomScrollPhysics applyTo(ScrollPhysics ancestor) {
-    return _CustomScrollPhysics(parent: buildParent(ancestor));
+    return _CustomScrollPhysics(list,parent: buildParent(ancestor));
   }
 
   double _getPage(ScrollPosition position) {
-    return position.pixels / (position.maxScrollExtent / (listMenus.length.toDouble() - 1));
+    return position.pixels / (position.maxScrollExtent / (list.length.toDouble() - 1));
     // return position.pixels / position.viewportDimension;
   }
 
   double _getPixels(ScrollPosition position, double page) {
     // return page * position.viewportDimension;
-    return page * (position.maxScrollExtent / (listMenus.length.toDouble() - 1));
+    return page * (position.maxScrollExtent / (list.length.toDouble() - 1));
   }
 
   double _getTargetPixels(ScrollPosition position, Tolerance tolerance, double velocity) {
