@@ -64,53 +64,46 @@ ThemeData buildThemeDataEn() {
       );
 }
 
-Color getColorHex({String colorStr}) {
-  return Color(getColorHexFromStr(colorStr));
+Color hexToColor(String code) {
+  return HexColor.fromHex(code);
 }
 
-int getColorHexFromStr(String colorStr) {
-  colorStr = "FF" + colorStr;
-  colorStr = colorStr.replaceAll("#", "");
-  int val = 0;
-  int len = colorStr.length;
-  for (int i = 0; i < len; i++) {
-    int hexDigit = colorStr.codeUnitAt(i);
-    if (hexDigit >= 48 && hexDigit <= 57) {
-      val += (hexDigit - 48) * (1 << (4 * (len - 1 - i)));
-    } else if (hexDigit >= 65 && hexDigit <= 70) {
-      // A..F
-      val += (hexDigit - 55) * (1 << (4 * (len - 1 - i)));
-    } else if (hexDigit >= 97 && hexDigit <= 102) {
-      // a..f
-      val += (hexDigit - 87) * (1 << (4 * (len - 1 - i)));
-    } else {
-      throw new FormatException("An error occurred when converting a color");
-    }
-  }
-  return val;
+String colorToHex(Color value) {
+  return value.toHex();
 }
 
-Color getTypeColor({int license}) {
-  switch (license) {
-    case 1:
-      return Color(0xFFd8eff4);
-    case 2:
-      return Color(0xFFecf4dc);
-    case 3:
-      return Color(0xFF82d1dd);
-    case 4:
-      return Color(0xFF00ffff);
-    case 5:
-      return Color(0xFF98ff98);
-    case 6:
-      return Color(0xFF95aad7);
-    case 7:
-      return Color(0xFFffd700);
-    case 8:
-      return Color(0xFFc0c0c0);
-    case 9:
-      return Color(0xFFe4e3ec);
-    default:
-      return Color(0xFFffd700);
+
+//class HexColor {
+//  static Color fromHex(String hexString) {
+//    final buffer = StringBuffer();
+//    if (hexString.length == 6 || hexString.length == 7) buffer.write('ff');
+//    buffer.write(hexString.replaceFirst('#', ''));
+//    return Color(int.parse(buffer.toString(), radix: 16));
+//  }
+//  static String toHex({bool leadingHashSign = true , Color value}) => '${leadingHashSign ? '#' : ''}'
+//      '${value.alpha.toRadixString(16).padLeft(2, '0')}'
+//      '${value.red.toRadixString(16).padLeft(2, '0')}'
+//      '${value.green.toRadixString(16).padLeft(2, '0')}'
+//      '${value.blue.toRadixString(16).padLeft(2, '0')}';
+//
+//}
+
+
+
+extension HexColor on Color {
+  /// String is in the format "aabbcc" or "ffaabbcc" with an optional leading "#".
+  static Color fromHex(String hexString) {
+    final buffer = StringBuffer();
+    if (hexString.length == 6 || hexString.length == 7) buffer.write('ff');
+    buffer.write(hexString.replaceFirst('#', ''));
+    return Color(int.parse(buffer.toString(), radix: 16));
   }
+
+  /// Prefixes a hash sign if [leadingHashSign] is set to `true` (default is `true`).
+  String toHex({bool leadingHashSign = true}) => '${leadingHashSign ? '#' : ''}'
+      '${alpha.toRadixString(16).padLeft(2, '0')}'
+      '${red.toRadixString(16).padLeft(2, '0')}'
+      '${green.toRadixString(16).padLeft(2, '0')}'
+      '${blue.toRadixString(16).padLeft(2, '0')}';
 }
+

@@ -7,8 +7,9 @@ import 'package:todo/utils/utils_string.dart';
 class MenuObjectCell extends StatefulWidget {
   final MenuObject menu;
   final VoidCallback onShow;
+  final VoidCallback onEditMenu;
 
-  const MenuObjectCell({Key key, this.menu,@required this.onShow}) : super(key: key);
+  const MenuObjectCell({Key key, this.menu,@required this.onShow,@required this.onEditMenu}) : super(key: key);
   @override
   _MenuObjectCellState createState() => _MenuObjectCellState();
 }
@@ -56,13 +57,14 @@ class _MenuObjectCellState extends State<MenuObjectCell> {
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
+
                           Stack(
                             children: <Widget>[
                               Hero(
                                 tag: widget.menu.id + "_icon",
                                 child: Container(
                                   decoration: BoxDecoration(
-                                    color: widget.menu.themeMenu.color,
+                                    color: widget.menu.theme.color,
                                     shape: BoxShape.circle,
                                     border: Border.all(
                                         color: Colors.black.withAlpha(70),
@@ -71,7 +73,7 @@ class _MenuObjectCellState extends State<MenuObjectCell> {
                                   ),
                                   child: Padding(
                                     padding: EdgeInsets.all(8.0),
-                                    child: Icon(widget.menu.themeMenu.icon,
+                                    child: Icon(widget.menu.theme.icon,
                                         color: Colors.white),
                                   ),
                                 ),
@@ -79,6 +81,28 @@ class _MenuObjectCellState extends State<MenuObjectCell> {
                             ],
                           ),
                           Spacer(),
+                          new GestureDetector(
+                            onTap: (){
+                              widget.onEditMenu();
+                            },
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.grey.withAlpha(30),
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                    color: Colors.black.withAlpha(70),
+                                    style: BorderStyle.solid,
+                                    width: 1.0),
+
+                              ),
+                              child: Padding(
+                                padding: EdgeInsets.all(8.0),
+                                child: Icon(Icons.settings,
+                                    color: Colors.black),
+                              ),
+                            ),
+                          ),
+
                         ],
                       ),
                     ),
@@ -117,7 +141,7 @@ class _MenuObjectCellState extends State<MenuObjectCell> {
                                 value: percentComplete,
                                 backgroundColor: Colors.grey.withAlpha(50),
                                 valueColor: AlwaysStoppedAnimation<Color>(
-                                    widget.menu.themeMenu.color),
+                                    widget.menu.theme.color),
                               ),
                             ),
                             Padding(

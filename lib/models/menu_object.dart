@@ -1,28 +1,31 @@
 
 import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:todo/utils/build_theme_data.dart';
 import 'package:todo/utils/utils_string.dart';
 
 import 'helpers/base_element.dart';
+import 'style_object.dart';
 import 'task_object.dart';
 
 class MenuObject extends FireBaseElement {
   static final String nameCollection = "menus";
   int timestamp;
   String name;
-  int themeMenuId;
+  int styleId;
   List<TaskObject> tasks = [];
+  StyleObject style;
   MenuObject({
     this.name,
     this.timestamp,
-    this.themeMenuId,
+    this.styleId,
     id}) : super(id, nameCollection);
 
   @override
   Map<String, dynamic> toMap() {
     var map = <String, dynamic>{
       "name": this.name,
-      "themeMenuId": this.themeMenuId ?? 0,
+      "styleId": this.styleId ?? 0,
       "timestamp": this.timestamp ?? new DateTime.now().millisecondsSinceEpoch,
     };
     if (this.id != null) {
@@ -35,7 +38,7 @@ class MenuObject extends FireBaseElement {
   static MenuObject getMenuObject() {
     MenuObject menuObject = new MenuObject(
       name: "",
-      themeMenuId: 0,
+      styleId: 0,
       timestamp: new DateTime.now().millisecondsSinceEpoch,
     );
     return menuObject;
@@ -46,7 +49,7 @@ class MenuObject extends FireBaseElement {
     db.rawUpdate("CREATE TABLE $nameCollection ("
         "id varchar(30) primary key,"
         "name varchar(30) ,"
-        "themeMenuId integer ,"
+        "styleId integer ,"
         "timestamp integer"
         ")");
   }
@@ -55,7 +58,7 @@ class MenuObject extends FireBaseElement {
     MenuObject menuObject = MenuObject(
       id: map["id"],
       name: map["name"],
-      themeMenuId: map["themeMenuId"],
+      styleId: map["styleId"],
       timestamp: map["timestamp"],
     );
     return menuObject;
@@ -63,11 +66,10 @@ class MenuObject extends FireBaseElement {
 
   @override
   List<String> columns() {
-    return ["id","name","themeMenuId","timestamp"];
+    return ["id","name","styleId","timestamp"];
   }
 
-  ThemeMenu get themeMenu => ListThemeMenu.choices[themeMenuId];
-  LinearGradient get gradient => LinearGradient(colors: themeMenu.gradient, begin: Alignment.bottomCenter, end: Alignment.topCenter);
+  ThemeMenu get theme => style == null ? ListThemeMenu.choices[styleId] : style.getTheme;
 
   double percentComplete() {
     if (tasks.isEmpty) {
@@ -85,27 +87,38 @@ class MenuObject extends FireBaseElement {
 }
 
 List<MenuObject> listMenus = [
-  new MenuObject(id: "111",name: "veryImportant" ,themeMenuId: 0,timestamp: new DateTime.now().millisecondsSinceEpoch),
-  new MenuObject(id: "222",name: "personal" ,themeMenuId: 1,timestamp: new DateTime.now().millisecondsSinceEpoch),
-  new MenuObject(id: "333",name: "work" ,themeMenuId: 2,timestamp: new DateTime.now().millisecondsSinceEpoch),
-  new MenuObject(id: "444",name: "home" ,themeMenuId: 3,timestamp: new DateTime.now().millisecondsSinceEpoch),
-  new MenuObject(id: "555",name: "shopping" ,themeMenuId: 4,timestamp: new DateTime.now().millisecondsSinceEpoch),
-  new MenuObject(id: "666",name: "training" ,themeMenuId: 5,timestamp: new DateTime.now().millisecondsSinceEpoch),
+  new MenuObject(id: "111",name: "veryImportant" ,styleId: 0,timestamp: new DateTime.now().millisecondsSinceEpoch),
+  new MenuObject(id: "222",name: "personal" ,styleId: 1,timestamp: new DateTime.now().millisecondsSinceEpoch),
+  new MenuObject(id: "333",name: "work" ,styleId: 2,timestamp: new DateTime.now().millisecondsSinceEpoch),
+  new MenuObject(id: "444",name: "home" ,styleId: 3,timestamp: new DateTime.now().millisecondsSinceEpoch),
+  new MenuObject(id: "555",name: "shopping" ,styleId: 4,timestamp: new DateTime.now().millisecondsSinceEpoch),
+  new MenuObject(id: "666",name: "training" ,styleId: 5,timestamp: new DateTime.now().millisecondsSinceEpoch),
 ];
 
 
 
 class ThemeMenu {
-  ThemeMenu({@required this.icon,@required this.color, @required this.gradient});
-  final IconData icon;
+  ThemeMenu({@required this.iconId,@required this.color, @required this.gradient});
+  final int iconId;
   final Color color;
   final List<Color> gradient;
+
+  String get getStyleId => iconId.toString();
+
+  String get getColorStr =>  colorToHex(color);
+  String get getGradColor1 => colorToHex(gradient[0]);
+  String get getGradColor2 => colorToHex(gradient[1]);
+
+  IconData get icon => appListIcon[iconId];
+  LinearGradient get getLinear => LinearGradient(colors: gradient, begin: Alignment.bottomCenter, end: Alignment.topCenter);
+
+
 }
 
 class ListThemeMenu {
   static List<ThemeMenu> choices = [
     ThemeMenu(
-      icon: Icons.alarm,
+      iconId:0,
       color: Color(0xFFF77B67),
       gradient: [
         Color(0xFFF54471),
@@ -113,7 +126,7 @@ class ListThemeMenu {
       ],
     ),
     ThemeMenu(
-      icon: Icons.person,
+      iconId:1,
       color: Color(0xFF5A89E6),
       gradient: [
         Color(0xFF4d55e1),
@@ -121,7 +134,7 @@ class ListThemeMenu {
       ],
     ),
     ThemeMenu(
-      icon: Icons.work,
+      iconId:2,
       color: Color(0xFF9f6565),
       gradient: [
         Color(0xFF9f6582),
@@ -129,7 +142,7 @@ class ListThemeMenu {
       ],
     ),
     ThemeMenu(
-      icon: Icons.home,
+      iconId:3,
       color: Color(0xFF9319f2),
       gradient: [
         Color(0xFF2619f2),
@@ -137,7 +150,7 @@ class ListThemeMenu {
       ],
     ),
     ThemeMenu(
-      icon: Icons.shopping_basket,
+      iconId:4,
       color: Color(0xFFdd73a8),
       gradient: [
         Color(0xFFdd7373),
@@ -145,7 +158,7 @@ class ListThemeMenu {
       ],
     ),
     ThemeMenu(
-      icon: Icons.school,
+      iconId:5,
       color: Color(0xFF4EC5AC),
       gradient: [
         Color(0xFF3dbc9c),
@@ -154,3 +167,13 @@ class ListThemeMenu {
     ),
   ];
 }
+
+List<IconData> appListIcon = [
+  Icons.alarm,
+  Icons.person,
+  Icons.work,
+  Icons.home,
+  Icons.shopping_basket,
+  Icons.school,
+];
+

@@ -15,6 +15,7 @@ import 'package:todo/utils/utils_string.dart';
 import 'package:todo/widgets/my_widget_loading.dart';
 
 import 'detail_page.dart';
+import 'edit_menu_page.dart';
 import 'setting_page.dart';
 
 class RootPage extends StatefulWidget {
@@ -32,7 +33,9 @@ class _RootPageState extends State<RootPage> with TickerProviderStateMixin{
   Color constBackColor;
   DatabaseHelper _databaseHelper;
   StreamController _streamController = StreamController();
+  List<MenuObject> _listMenus = [];
   set _menuObjectStream(List<MenuObject> list) {
+    _listMenus = list;
     _streamController.sink.add(list);
   }
   get _menuObjectStream => _streamController.stream;
@@ -43,36 +46,32 @@ class _RootPageState extends State<RootPage> with TickerProviderStateMixin{
     super.initState();
     _databaseHelper = new DatabaseHelper();
     initListMenuObject();
-    colorTween = ColorTween(begin: listMenus[0].themeMenu.color, end: listMenus[0].themeMenu.color);
-    backgroundColor = listMenus[0].themeMenu.color;
-    backgroundGradient = listMenus[0].gradient;
+    colorTween = ColorTween(begin: listMenus[0].theme.color, end: listMenus[0].theme.color);
+    backgroundColor = listMenus[0].theme.color;
+    backgroundGradient = listMenus[0].theme.getLinear;
     scrollController = ScrollController();
-    scrollController.addListener(() {
-      ScrollPosition position = scrollController.position;
-      int page = position.pixels ~/ (position.maxScrollExtent / (listMenus.length.toDouble() - 1));
-      double pageDo = (position.pixels / (position.maxScrollExtent / (listMenus.length.toDouble() - 1)));
-      double percent = pageDo - page;
-      if (listMenus.length - 1 < page + 1) {
-        return;
-      }
-      colorTween.begin = listMenus[page].themeMenu.color;
-      colorTween.end = listMenus[page + 1].themeMenu.color;
-      setState(() {
-        backgroundColor = colorTween.transform(percent);
-        backgroundGradient = listMenus[page].gradient.lerpTo(listMenus[page + 1].gradient, percent);
-      });
+    scrollController.addListener(listener);
+  }
+  listener(){
+    ScrollPosition position = scrollController.position;
+    int page = position.pixels ~/ (position.maxScrollExtent / (_listMenus.length.toDouble() - 1));
+    double pageDo = (position.pixels / (position.maxScrollExtent / (_listMenus.length.toDouble() - 1)));
+    double percent = pageDo - page;
+    if (_listMenus.length - 1 < page + 1) {
+      return;
+    }
+    colorTween.begin = _listMenus[page].theme.color;
+    colorTween.end = _listMenus[page + 1].theme.color;
+    setState(() {
+      backgroundColor = colorTween.transform(percent);
+      backgroundGradient = _listMenus[page].theme.getLinear.lerpTo(_listMenus[page + 1].theme.getLinear, percent);
     });
   }
   initListMenuObject()async{
     sumTask = 0;
-    List<MenuObject> list = [];
-    for(MenuObject menuObject in listMenus){
-      List<TaskObject> listTaskObject = await _databaseHelper.getListTaskObjectWitMenuId(menuId: menuObject.id, dayId: getDayId());
-      if(listTaskObject.length > 0){
-        menuObject.tasks = listTaskObject;
-        sumTask += listTaskObject.length;
-        list.add(menuObject);
-      }
+    List<MenuObject> list = await _databaseHelper.getListMenu(dayId: getDayId());
+    for(MenuObject menuObject in list){
+      sumTask += menuObject.tasks.length;
     }
     _menuObjectStream = list;
   }
@@ -88,9 +87,9 @@ class _RootPageState extends State<RootPage> with TickerProviderStateMixin{
     return Container(
       decoration: BoxDecoration(gradient: backgroundGradient),
       child: Scaffold(
-        backgroundColor: Colors.transparent,
+        backgroundColor: backgroundColor,
         appBar: AppBar(
-          backgroundColor: Colors.transparent,
+          backgroundColor: backgroundColor,
           elevation: 0.0,
           title: Text(getTranslated(context, "appName")),
           centerTitle: true,
@@ -188,8 +187,8 @@ class _RootPageState extends State<RootPage> with TickerProviderStateMixin{
                     heroTag: m.id,
                     elevation: 0.0,
                     tooltip: getTranslated(context, m.name),
-                    child: Icon(m.themeMenu.icon),
-                    backgroundColor: m.themeMenu.color,
+                    child: Icon(m.theme.icon),
+                    backgroundColor: m.theme.color,
                   ),
                 );
               }).toList(),
@@ -220,6 +219,8 @@ class _RootPageState extends State<RootPage> with TickerProviderStateMixin{
             return new MenuObjectCell(
               menu: menu,
               onShow: ()=> _selectMenuObject(menuObject: menu),
+              onEditMenu: ()=> _editMenuObject(menuObject: menu),
+
             );
           },
           padding: EdgeInsets.only(left: 40.0, right: 40.0),
@@ -246,6 +247,22 @@ class _RootPageState extends State<RootPage> with TickerProviderStateMixin{
    initListMenuObject();
 
   }
+
+  _editMenuObject({MenuObject menuObject}) async{
+    await Navigator.of(context).push(
+      PageRouteBuilder(
+        pageBuilder: (BuildContext context, Animation<double> animation,
+            Animation<double> secondaryAnimation) =>
+            EditMenuPage(menuObject: menuObject),
+        transitionDuration: Duration(milliseconds: 500),
+      ),
+    );
+    initListMenuObject();
+
+    print("EditMenu");
+
+  }
+
 
 }
 

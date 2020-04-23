@@ -4,8 +4,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:todo/utils/utils_files.dart';
+import 'package:todo/utils/utils_string.dart';
 
 import '../menu_object.dart';
+import '../style_object.dart';
 import '../task_object.dart';
 import '../tools.dart';
 import 'base_element.dart';
@@ -37,6 +39,7 @@ class DatabaseHelper {
             new Tools().createTable(database);
             new MenuObject().createTable(database);
             new TaskObject().createTable(database);
+            new StyleObject().createTable(database);
           });
       return db;
     }catch(e){
@@ -48,6 +51,21 @@ class DatabaseHelper {
     var dbClient = await db ;
     _database = null;
     dbClient.close();
+  }
+
+  addMenuStander()async{
+    for(MenuObject menuObject in listMenus){
+      await insert(menuObject);
+      StyleObject style = new StyleObject(
+        id: menuObject.theme.getStyleId,
+          iconId: menuObject.theme.iconId,
+          colorStr: menuObject.theme.getColorStr,
+          gradColor1: menuObject.theme.getGradColor1,
+          gradColor2: menuObject.theme.getGradColor2
+      );
+      await insert(style);
+    }
+    print("End addMenuStander");
   }
 
 
@@ -96,6 +114,32 @@ class DatabaseHelper {
       list.add(taskObject);
     }
     return list;
+  }
+
+  Future<List<MenuObject>> getListMenu({@required String dayId}) async{
+    List<MenuObject> list = [];
+    Database dbClient = await db;
+    List<Map> maps = await dbClient.query(MenuObject.nameCollection, columns: MenuObject().columns());
+    if(maps.length == 0){
+      await addMenuStander();
+      return await getListMenu(dayId: dayId);
+    }
+    for(Map map in maps){
+      MenuObject menuObject = new MenuObject.sqlFromMap(map);
+      menuObject.tasks = await getListTaskObjectWitMenuId(menuId: menuObject.id, dayId: dayId);
+      menuObject.style = await getStyleWithId(styleId: menuObject.styleId.toString());
+      list.add(menuObject);
+    }
+    return list;
+  }
+  Future<StyleObject> getStyleWithId({@required String styleId}) async{
+    Database dbClient = await db;
+    List<Map> maps = await dbClient.query(StyleObject.nameCollection,where: 'id = ?', whereArgs: [styleId], columns: StyleObject().columns(),orderBy: "id desc");
+    if(maps.length > 0){
+      StyleObject styleObject = new StyleObject.sqlFromMap(maps[0]);
+      return styleObject;
+    }
+    return null;
   }
 
 }
