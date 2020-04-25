@@ -87,9 +87,9 @@ class _RootPageState extends State<RootPage> with TickerProviderStateMixin{
     return Container(
       decoration: BoxDecoration(gradient: backgroundGradient),
       child: Scaffold(
-        backgroundColor: backgroundColor,
+        backgroundColor: Colors.transparent,
         appBar: AppBar(
-          backgroundColor: backgroundColor,
+          backgroundColor: Colors.transparent,
           elevation: 0.0,
           title: Text(getTranslated(context, "appName")),
           centerTitle: true,

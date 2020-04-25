@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:todo/app_localizations.dart';
 import 'package:todo/utils/build_theme_data.dart';
 import 'package:todo/utils/utils_string.dart';
 
@@ -84,6 +85,31 @@ class MenuObject extends FireBaseElement {
     return completed / tasks.length;
   }
 
+  String getTitle(BuildContext context){
+    switch(name){
+      case "veryImportant":
+        return getTranslated(context, name);
+        break;
+      case "personal":
+        return getTranslated(context, name);
+        break;
+      case "work":
+        return getTranslated(context, name);
+        break;
+      case "home":
+        return getTranslated(context, name);
+        break;
+      case "shopping":
+        return getTranslated(context, name);
+        break;
+      case "training":
+        return getTranslated(context, name);
+        break;
+      default:
+        return name;
+    }
+  }
+
 }
 
 List<MenuObject> listMenus = [
@@ -93,6 +119,15 @@ List<MenuObject> listMenus = [
   new MenuObject(id: "444",name: "home" ,styleId: 3,timestamp: new DateTime.now().millisecondsSinceEpoch),
   new MenuObject(id: "555",name: "shopping" ,styleId: 4,timestamp: new DateTime.now().millisecondsSinceEpoch),
   new MenuObject(id: "666",name: "training" ,styleId: 5,timestamp: new DateTime.now().millisecondsSinceEpoch),
+];
+
+List<String> listKeysTranslated = [
+  "veryImportant",
+  "personal",
+  "work",
+  "home",
+  "shopping",
+  "training"
 ];
 
 
@@ -175,5 +210,31 @@ List<IconData> appListIcon = [
   Icons.home,
   Icons.shopping_basket,
   Icons.school,
+  Icons.accessibility,
+  Icons.account_balance_wallet,
+  Icons.airplanemode_active,
+  Icons.airplay,
+  Icons.airport_shuttle,
+  Icons.alternate_email,
+  Icons.beach_access,
+  Icons.bookmark,
+  Icons.branding_watermark,
+  Icons.brightness_3,
+  Icons.broken_image,
+  Icons.build,
+  Icons.business,
+  Icons.cake,
+  Icons.call,
+  Icons.directions_bike,
+  Icons.directions_run,
+  Icons.event_seat,
+  Icons.favorite,
+  Icons.filter_frames,
+  Icons.free_breakfast,
+
+
+
+
 ];
+
 

@@ -141,5 +141,15 @@ class DatabaseHelper {
     }
     return null;
   }
+  Future<List<StyleObject>> getListStyle() async{
+    List<StyleObject> list = [];
+    Database dbClient = await db;
+    List<Map> maps = await dbClient.query(StyleObject.nameCollection, columns: StyleObject().columns());
+    for(Map map in maps){
+      StyleObject styleObject = new StyleObject.sqlFromMap(map);
+      list.add(styleObject);
+    }
+    return list;
+  }
 
 }

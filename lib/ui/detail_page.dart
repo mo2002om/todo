@@ -184,7 +184,7 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin  
                                   child: Material(
                                     color: Colors.transparent,
                                     child: Text(
-                                      getTranslated(context, menu.name),
+                                      menu.getTitle(context),
                                       style: TextStyle(fontSize: 20.0,fontWeight: FontWeight.bold),
                                       softWrap: false,
                                     ),

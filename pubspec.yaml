@@ -31,6 +31,8 @@ dependencies:
   hijri_picker: ^0.0.35
   flutter_local_notifications: ^1.4.1
   animated_floatactionbuttons: ^0.1.0
+  flutter_sequence_animation: ^3.0.1
+  flutter_circle_color_picker: ^0.1.1
 
 dev_dependencies:
   flutter_test:
