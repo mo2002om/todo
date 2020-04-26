@@ -357,6 +357,7 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin  
                                 ),
                                 text: _taskObject.startDate == 0 ? getTranslated(context, "startingTime") : getMissionTime(timestamp: _taskObject.startDate),
                                 onTap:() async{
+                                  _dateTime = new DateTime.now();
                                   final selectedTime = await selectTime(context: context,dateTime: _dateTime);
                                   if (selectedTime == null) return;
                                   _dateTime = DateTime(
@@ -368,7 +369,6 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin  
                                   );
                                   setState(() {
                                     _taskObject.startDate = _dateTime.millisecondsSinceEpoch;
-                                    _dateTime = new DateTime.now();
                                   });
                                 },
                               ),
