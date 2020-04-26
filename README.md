@@ -4,7 +4,7 @@ A new Flutter application.
 
 
 ## 📷 Screenshots
-![screenshots](https://github.com/mo2002om/todo/raw/master/screenshots/1.png),(https://github.com/mo2002om/todo/raw/master/screenshots/2.png)
+![screenshots][(https://github.com/mo2002om/todo/raw/master/screenshots/1.png),(https://github.com/mo2002om/todo/raw/master/screenshots/2.png)]
 ![screenshots](https://github.com/mo2002om/todo/raw/master/screenshots/3.png),(https://github.com/mo2002om/todo/raw/master/screenshots/4.png)
 
 ## Getting Started
