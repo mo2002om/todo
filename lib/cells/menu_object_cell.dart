@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:todo/app_localizations.dart';
 import 'package:todo/models/menu_object.dart';
-import 'package:todo/ui/detail_page.dart';
-import 'package:todo/utils/utils_string.dart';
-
 class MenuObjectCell extends StatefulWidget {
   final MenuObject menu;
   final VoidCallback onShow;
@@ -64,7 +61,7 @@ class _MenuObjectCellState extends State<MenuObjectCell> {
                                 tag: widget.menu.id + "_icon",
                                 child: Container(
                                   decoration: BoxDecoration(
-                                    color: widget.menu.theme.color,
+                                    color: widget.menu.style.color,
                                     shape: BoxShape.circle,
                                     border: Border.all(
                                         color: Colors.black.withAlpha(70),
@@ -73,7 +70,7 @@ class _MenuObjectCellState extends State<MenuObjectCell> {
                                   ),
                                   child: Padding(
                                     padding: EdgeInsets.all(8.0),
-                                    child: Icon(widget.menu.theme.icon,
+                                    child: Icon(widget.menu.icon,
                                         color: Colors.white),
                                   ),
                                 ),
@@ -96,8 +93,8 @@ class _MenuObjectCellState extends State<MenuObjectCell> {
 
                               ),
                               child: Padding(
-                                padding: EdgeInsets.all(8.0),
-                                child: Icon(Icons.settings,
+                                padding: EdgeInsets.all(4.0),
+                                child: Icon(Icons.color_lens,
                                     color: Colors.black),
                               ),
                             ),
@@ -141,7 +138,7 @@ class _MenuObjectCellState extends State<MenuObjectCell> {
                                 value: percentComplete,
                                 backgroundColor: Colors.grey.withAlpha(50),
                                 valueColor: AlwaysStoppedAnimation<Color>(
-                                    widget.menu.theme.color),
+                                    widget.menu.style.color),
                               ),
                             ),
                             Padding(

@@ -3,12 +3,12 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_sequence_animation/flutter_sequence_animation.dart';
+import 'package:todo/models/helpers/base_element.dart';
 import 'package:todo/models/helpers/database_helper.dart';
 import 'package:todo/models/menu_object.dart';
 import 'package:todo/models/style_object.dart';
 import 'package:todo/utils/build_theme_data.dart';
 import 'package:todo/utils/utils_colors.dart';
-import 'package:todo/utils/utils_string.dart';
 import 'package:todo/widgets/modal_text_widgets.dart';
 import 'package:todo/widgets/my_widget_loading.dart';
 
@@ -32,6 +32,8 @@ class _EditMenuPageState extends State<EditMenuPage> with TickerProviderStateMix
   }
   get _styleObjectStream => _streamController.stream;
   DatabaseHelper _databaseHelper;
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+
   @override
   void initState() {
     super.initState();
@@ -63,7 +65,7 @@ class _EditMenuPageState extends State<EditMenuPage> with TickerProviderStateMix
           child: Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10.0),
-                gradient: menu.theme.getLinear,
+                gradient: menu.style.getLinear,
             ),
           ),
         ),
@@ -73,6 +75,7 @@ class _EditMenuPageState extends State<EditMenuPage> with TickerProviderStateMix
           },
           child: Scaffold(
             backgroundColor: Colors.transparent,
+            key: _scaffoldKey,
             appBar: AppBar(
               backgroundColor: Colors.transparent,
               elevation: 0.0,
@@ -94,6 +97,14 @@ class _EditMenuPageState extends State<EditMenuPage> with TickerProviderStateMix
                 ),
               ),
               actions: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.only(left: 16,right: 16),
+                  child: IconButton(
+                    icon: Icon(Icons.check),
+                    color: Colors.white,
+                    onPressed:completed() ? ()=> _saveData() : null,
+                  ),
+                ),
               ],
             ),
             body: Padding(
@@ -119,7 +130,7 @@ class _EditMenuPageState extends State<EditMenuPage> with TickerProviderStateMix
                                   child: Material(
                                     color: Colors.transparent,
                                     child: Text(
-                                      menu.tasks.length.toString() + getTranslated(context, "tasks"),
+                                      "The name",
                                       style: TextStyle(),
                                       softWrap: false,
                                     ),
@@ -150,20 +161,20 @@ class _EditMenuPageState extends State<EditMenuPage> with TickerProviderStateMix
                         Padding(
                           padding: EdgeInsets.only(left: 20.0, right: 20.0),
                           child: new CircleAvatar(
-                            backgroundColor: menu.theme.color,
+                            backgroundColor: menu.style.color,
                             radius: 24,
                             child: Hero(
                               tag: menu.id + "_icon",
                               child: Container(
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
-                                  color: menu.theme.color,
+                                  color: menu.style.color,
                                   border: Border.all(color: Colors.white, style: BorderStyle.solid, width: 2.0),
                                 ),
                                 child: Padding(
                                   padding: EdgeInsets.all(8.0),
                                   child: Icon(
-                                    menu.theme.icon,
+                                    menu.icon,
                                     color: Colors.white,
                                     size: 24,
                                   ),
@@ -228,13 +239,13 @@ class _EditMenuPageState extends State<EditMenuPage> with TickerProviderStateMix
                 scrollDirection: Axis.horizontal,
                 children: appListIcon.map((IconData icon){
                   int index = appListIcon.indexOf(icon);
-                  bool isSelected = index == menu.style.iconId;
+                  bool isSelected = index == menu.iconId;
                   return Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: new GestureDetector(
                       onTap: (){
                         setState(() {
-                          menu.style.iconId = index;
+                          menu.iconId = index;
                         });
                       },
                       child: new Container(
@@ -271,7 +282,7 @@ class _EditMenuPageState extends State<EditMenuPage> with TickerProviderStateMix
           Padding(
             padding: EdgeInsets.only(bottom: 10,top: 10),
             child: Container(
-              height: 60,
+              height: 100,
               child: _streamBuilder(),
             ),
           ),
@@ -281,12 +292,11 @@ class _EditMenuPageState extends State<EditMenuPage> with TickerProviderStateMix
             heightMin: 50,
             heightMax: 180,
             onChanged: (List<Color> colors)async{
-              StyleObject s = new StyleObject(iconId: menu.style.iconId,colorStr: colorToHex(colors[0]),gradColor1: colorToHex(colors[1]),gradColor2: colorToHex(colors[2]));
-              await _databaseHelper.insert(s);
+              StyleObject s = new StyleObject(colorStr: colorToHex(colors[0]),gradColor1: colorToHex(colors[1]),gradColor2: colorToHex(colors[2]));
+              FireBaseElement element = await _databaseHelper.insert(s);
               setState(() {
-                menu.style.gradColor1 = colorToHex(colors[1]);
-                menu.style.gradColor2 = colorToHex(colors[2]);
-                menu.style.colorStr = colorToHex(colors[0]);
+                menu.styleId = element.id;
+                menu.style = element;
               });
               initListStyleObject();
             },
@@ -358,6 +368,7 @@ class _EditMenuPageState extends State<EditMenuPage> with TickerProviderStateMix
           return new MyWidgetNull(color: Colors.white,);
         }
         return new ListView(
+          padding: const EdgeInsets.all(0),
           scrollDirection: Axis.horizontal,
           children: <Widget>[
             ...list.map((StyleObject style){
@@ -367,18 +378,49 @@ class _EditMenuPageState extends State<EditMenuPage> with TickerProviderStateMix
                 child: new GestureDetector(
                   onTap: (){
                     setState(() {
-                      menu.style.gradColor1 = style.gradColor1;
-                      menu.style.gradColor2 = style.gradColor2;
-                      menu.style.colorStr = style.colorStr;
+                      menu.styleId = style.id;
+                      menu.style = style;
                     });
                   },
                   child: Container(
-                    width: 44,
-                    height: 44,
+                    width: 84,
+                    height: 84,
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      gradient: style.getTheme.getLinear,
+                      gradient: style.getLinear,
                       border: Border.all(color:isSelected ? Colors.black : Colors.grey, style: BorderStyle.solid, width: 2.0),
+                      borderRadius: BorderRadius.circular(8)
+                    ),
+                    child: !isSelected && !style.isUsed
+                        ?  new Align(
+                      alignment: Alignment.topLeft,
+                      child: new InkWell(
+                        onTap: ()async{
+                          print("delete");
+                          await _databaseHelper.delete(style);
+                          showInSnackBar("تم الحذف بنجاح");
+                          initListStyleObject();
+
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.all(4.0),
+                          child: new Icon(Icons.delete ,color: Colors.white,),
+                        ),
+                      ),
+                    )
+                        : new Align(
+                      alignment: Alignment.topLeft,
+                      child: new InkWell(
+                        onTap: (){
+                          print("delete");
+                          showInSnackBar("هذا الاستايل مستخدم بالفعل في أحد قوائمك");
+
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.all(4.0),
+                          child: new Icon(Icons.lock ,color: Colors.white,),
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -389,6 +431,34 @@ class _EditMenuPageState extends State<EditMenuPage> with TickerProviderStateMix
       },
     );
   }
+  void showInSnackBar(String value) {
+    _scaffoldKey.currentState.showSnackBar(new SnackBar(
+        backgroundColor: Theme.of(context).primaryColor,
+        content: new Text(
+          value,
+          textAlign: TextAlign.center,
+          style: Theme.of(context).primaryTextTheme.body2,
+        )));
+  }
+
+  bool completed(){
+    if(menu.name.length < 4){
+      return false;
+    }
+    return true;
+  }
+
+  _saveData()async{
+    print("_saveData");
+    if(menu.id != null){
+      await _databaseHelper.update(menu);
+    }else{
+      await _databaseHelper.insert(menu);
+    }
+    Navigator.pop(context, menu);
+
+  }
+
 
 }
 
@@ -531,6 +601,7 @@ class _WidgetEditStyleState extends State<WidgetEditStyle> with SingleTickerProv
               children: <Widget>[
                 new IconButton(
                   icon: new Icon(Icons.close),
+                  color: Colors.white,
                   onPressed: (){
                     _closeAnimation();
                     setState(() {
@@ -538,18 +609,18 @@ class _WidgetEditStyleState extends State<WidgetEditStyle> with SingleTickerProv
                     });
                   },
                 ),
-                completed()
-                    ? new IconButton(
+                new MyTextBody(string: "قم باختيار الألوان",),
+                new IconButton(
                   icon: new Icon(Icons.check),
-                  onPressed: (){
+                  color: Colors.white,
+                  onPressed: completed() ? (){
                     widget.onChanged(_listColors);
                     _closeAnimation();
                     setState(() {
                       _listColors = colorsStander();
                     });
-                  },
+                  } : null,
                 )
-                    : new Container(),
 
               ],
             ),
@@ -636,6 +707,8 @@ class _WidgetEditStyleState extends State<WidgetEditStyle> with SingleTickerProv
       Colors.grey,
     ];
   }
+
+
 
 }
 

@@ -1,7 +1,6 @@
 
 import 'dart:async';
 
-import 'package:animated_floatactionbuttons/animated_floatactionbuttons.dart';
 import 'package:flutter/material.dart';
 import 'package:todo/app_localizations.dart';
 import 'package:todo/cells/menu_object_cell.dart';
@@ -12,6 +11,7 @@ import 'package:todo/models/tools.dart';
 import 'package:intl/intl.dart';
 import 'package:todo/utils/utils_DateTime.dart';
 import 'package:todo/utils/utils_string.dart';
+import 'package:todo/widgets/my_custom_widget.dart';
 import 'package:todo/widgets/my_widget_loading.dart';
 
 import 'detail_page.dart';
@@ -35,7 +35,9 @@ class _RootPageState extends State<RootPage> with TickerProviderStateMixin{
   StreamController _streamController = StreamController();
   List<MenuObject> _listMenus = [];
   set _menuObjectStream(List<MenuObject> list) {
-    _listMenus = list;
+    setState(() {
+      _listMenus = list;
+    });
     _streamController.sink.add(list);
   }
   get _menuObjectStream => _streamController.stream;
@@ -46,9 +48,10 @@ class _RootPageState extends State<RootPage> with TickerProviderStateMixin{
     super.initState();
     _databaseHelper = new DatabaseHelper();
     initListMenuObject();
-    colorTween = ColorTween(begin: listMenus[0].theme.color, end: listMenus[0].theme.color);
-    backgroundColor = listMenus[0].theme.color;
-    backgroundGradient = listMenus[0].theme.getLinear;
+    MenuObject menuStander = MenuObject.listStanderMenus()[0];
+    colorTween = ColorTween(begin: menuStander.style.color, end: menuStander.style.color);
+    backgroundColor = menuStander.style.color;
+    backgroundGradient = menuStander.style.getLinear;
     scrollController = ScrollController();
     scrollController.addListener(listener);
   }
@@ -60,11 +63,11 @@ class _RootPageState extends State<RootPage> with TickerProviderStateMixin{
     if (_listMenus.length - 1 < page + 1) {
       return;
     }
-    colorTween.begin = _listMenus[page].theme.color;
-    colorTween.end = _listMenus[page + 1].theme.color;
+    colorTween.begin = _listMenus[page].style.color;
+    colorTween.end = _listMenus[page + 1].style.color;
     setState(() {
       backgroundColor = colorTween.transform(percent);
-      backgroundGradient = _listMenus[page].theme.getLinear.lerpTo(_listMenus[page + 1].theme.getLinear, percent);
+      backgroundGradient = _listMenus[page].style.getLinear.lerpTo(_listMenus[page + 1].style.getLinear, percent);
     });
   }
   initListMenuObject()async{
@@ -177,27 +180,7 @@ class _RootPageState extends State<RootPage> with TickerProviderStateMixin{
             ),
           ],
         ),
-        floatingActionButton: Padding(
-          padding: const EdgeInsets.only(bottom: 20),
-          child: AnimatedFloatingActionButton(
-              fabButtons: listMenus.map((MenuObject m){
-                return Container(
-                  child: FloatingActionButton(
-                    onPressed: () => _selectMenuObject(menuObject: m),
-                    heroTag: m.id,
-                    elevation: 0.0,
-                    tooltip: getTranslated(context, m.name),
-                    child: Icon(m.theme.icon),
-                    backgroundColor: m.theme.color,
-                  ),
-                );
-              }).toList(),
-              colorStartAnimation: Theme.of(context).primaryColor,
-              colorEndAnimation: Theme.of(context).primaryColorDark,
-              animatedIconData: AnimatedIcons.add_event //To principal button
-          ),
-        ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.endDocked ,
+
       ),
     );
   }
@@ -210,7 +193,30 @@ class _RootPageState extends State<RootPage> with TickerProviderStateMixin{
         }
         List<MenuObject> list = snapshot.data;
         if (list.length == 0){
-          return new MyWidgetNull(color: Colors.white,);
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              new MyWidgetNull(color: Colors.white,),
+              new SizedBox(height: 16,),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  getIconText(
+                    color: Colors.white,
+                    icon: Icon(
+                      Icons.add,
+                      color: Colors.white,
+                    ),
+                    text: "اضغط هنا للبدء",
+                    onTap:() async{
+                      await _databaseHelper.addMenuStander();
+                      initListMenuObject();
+                    },
+                  ),
+                ],
+              ),
+            ],
+          );
         }
         return new ListView.builder(
           itemBuilder: (context, index) {
@@ -249,7 +255,7 @@ class _RootPageState extends State<RootPage> with TickerProviderStateMixin{
   }
 
   _editMenuObject({MenuObject menuObject}) async{
-    await Navigator.of(context).push(
+    MenuObject menu = await Navigator.of(context).push(
       PageRouteBuilder(
         pageBuilder: (BuildContext context, Animation<double> animation,
             Animation<double> secondaryAnimation) =>
@@ -257,7 +263,15 @@ class _RootPageState extends State<RootPage> with TickerProviderStateMixin{
         transitionDuration: Duration(milliseconds: 500),
       ),
     );
-    initListMenuObject();
+
+    if(menu != null){
+      setState(() {
+        backgroundGradient = menu.style.getLinear;
+        backgroundColor = menu.style.color;
+      });
+      initListMenuObject();
+    }
+
 
     print("EditMenu");
 

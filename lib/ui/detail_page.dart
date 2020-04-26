@@ -198,7 +198,7 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin  
                         menu.tasks.length > 0 ? getIconText(
                           icon: Icon(
                             isDelete ? Icons.check : Icons.edit,
-                            color: menu.theme.color,
+                            color: menu.style.color,
                           ),
                           text: isDelete ? getTranslated(context, "back") : getTranslated(context, "edit"),
                           onTap:() {
@@ -211,20 +211,20 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin  
                         Padding(
                           padding: EdgeInsets.only(left: 20.0, right: 20.0),
                           child: new CircleAvatar(
-                            backgroundColor: menu.theme.color,
+                            backgroundColor: menu.style.color,
                             radius: 24,
                             child: Hero(
                               tag: menu.id + "_icon",
                               child: Container(
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
-                                  color: menu.theme.color,
+                                  color: menu.style.color,
                                   border: Border.all(color: Colors.grey.withAlpha(70), style: BorderStyle.solid, width: 1.0),
                                 ),
                                 child: Padding(
                                   padding: EdgeInsets.all(8.0),
                                   child: Icon(
-                                    menu.theme.icon,
+                                    menu.icon,
                                     color: Colors.white,
                                     size: 24,
                                   ),
@@ -250,7 +250,7 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin  
                                 child: LinearProgressIndicator(
                                   value: barPercent,
                                   backgroundColor: Colors.grey.withAlpha(50),
-                                  valueColor: AlwaysStoppedAnimation<Color>(menu.theme.color),
+                                  valueColor: AlwaysStoppedAnimation<Color>(menu.style.color),
                                 ),
                               ),
                               Padding(
@@ -316,8 +316,8 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin  
 
                                 },
                                 child: Icon(
-                                  menu.theme.icon,
-                                  color: menu.theme.color,
+                                  menu.icon,
+                                  color: menu.style.color,
                                 ),
                               ),
                               suffixIcon: GestureDetector(
@@ -331,14 +331,14 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin  
                                   decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(8),
                                       color: completed()
-                                          ? menu.theme.color
+                                          ? menu.style.color
                                           : Colors.grey.withOpacity(0.2),
                                   ),
                                   child: Icon(
                                     Icons.check,
                                     color: completed()
                                         ? Colors.black
-                                        : menu.theme.color,
+                                        : menu.style.color,
                                     size: 20,
                                   ),
                                 ),
@@ -353,7 +353,7 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin  
                               getIconText(
                                 icon: Icon(
                                   Icons.timer,
-                                  color: menu.theme.color,
+                                  color: menu.style.color,
                                 ),
                                 text: _taskObject.startDate == 0 ? getTranslated(context, "startingTime") : getMissionTime(timestamp: _taskObject.startDate),
                                 onTap:() async{
@@ -418,7 +418,7 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin  
     switch(isDelete){
       case false:
         return new CustomCheckboxListTile(
-          activeColor: menu.theme.color,
+          activeColor: menu.style.color,
           value: task.isCompleted,
           onChanged: (value) {
             _updateTaskObject(task: task);
@@ -451,7 +451,7 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin  
         break;
       default:
         return new CustomCheckboxListTile(
-          activeColor: menu.theme.color,
+          activeColor: menu.style.color,
           value: task.isCompleted,
           onChanged: (value) {
             _updateTaskObject(task: task);

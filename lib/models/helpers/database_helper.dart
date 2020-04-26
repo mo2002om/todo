@@ -54,16 +54,9 @@ class DatabaseHelper {
   }
 
   addMenuStander()async{
-    for(MenuObject menuObject in listMenus){
+    for(MenuObject menuObject in MenuObject.listStanderMenus()){
       await insert(menuObject);
-      StyleObject style = new StyleObject(
-        id: menuObject.theme.getStyleId,
-          iconId: menuObject.theme.iconId,
-          colorStr: menuObject.theme.getColorStr,
-          gradColor1: menuObject.theme.getGradColor1,
-          gradColor2: menuObject.theme.getGradColor2
-      );
-      await insert(style);
+      await insert(menuObject.style);
     }
     print("End addMenuStander");
   }
@@ -108,7 +101,7 @@ class DatabaseHelper {
   Future<List<TaskObject>> getListTaskObjectWitMenuId({@required String menuId, @required String dayId}) async{
     List<TaskObject> list = [];
     Database dbClient = await db;
-    List<Map> maps = await dbClient.query(TaskObject.nameCollection,where: 'menuId = ? AND dayId = ?', whereArgs: [menuId,dayId], columns: TaskObject().columns(),orderBy: "timestamp desc");
+    List<Map> maps = await dbClient.query(TaskObject.nameCollection,where: 'menuId = ? AND dayId = ?', whereArgs: [menuId,dayId], columns: TaskObject().columns(),orderBy: "startDate desc");
     for(Map map in maps){
       TaskObject taskObject = new TaskObject.sqlFromMap(map);
       list.add(taskObject);
@@ -120,10 +113,10 @@ class DatabaseHelper {
     List<MenuObject> list = [];
     Database dbClient = await db;
     List<Map> maps = await dbClient.query(MenuObject.nameCollection, columns: MenuObject().columns());
-    if(maps.length == 0){
-      await addMenuStander();
-      return await getListMenu(dayId: dayId);
-    }
+//    if(maps.length == 0){
+//      await addMenuStander();
+//      return await getListMenu(dayId: dayId);
+//    }
     for(Map map in maps){
       MenuObject menuObject = new MenuObject.sqlFromMap(map);
       menuObject.tasks = await getListTaskObjectWitMenuId(menuId: menuObject.id, dayId: dayId);
@@ -147,9 +140,18 @@ class DatabaseHelper {
     List<Map> maps = await dbClient.query(StyleObject.nameCollection, columns: StyleObject().columns());
     for(Map map in maps){
       StyleObject styleObject = new StyleObject.sqlFromMap(map);
+      styleObject.isUsed = await menuIsUsed(styleId: styleObject.id);
       list.add(styleObject);
     }
     return list;
+  }
+  Future<bool> menuIsUsed({@required String styleId}) async {
+    Database dbClient = await db;
+    List<Map> maps = await dbClient.query(MenuObject.nameCollection,where: 'styleId = ?', whereArgs: [styleId], columns: MenuObject().columns());
+    if(maps.length > 0){
+      return true;
+    }
+    return false;
   }
 
 }
