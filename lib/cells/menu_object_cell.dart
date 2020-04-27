@@ -93,9 +93,9 @@ class _MenuObjectCellState extends State<MenuObjectCell> {
 
                               ),
                               child: Padding(
-                                padding: EdgeInsets.all(4.0),
-                                child: Icon(Icons.color_lens,
-                                    color: Colors.black),
+                                padding: EdgeInsets.all(8.0),
+                                child: Icon(Icons.settings,
+                                    color: Colors.black,size: 16,),
                               ),
                             ),
                           ),

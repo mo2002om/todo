@@ -21,6 +21,16 @@
   "YourJobToday": "عملك لهذا اليوم",
   "YouHave" : "لديك ",
   "tasksToDoToday" : " مهام لهذا اليوم ",
+  "chooseColors": "قم باختيار الألوان",
+  "thisStyleUsed": "هذا النمط مستخدم بالفعل في إحدى قوائمك",
+  "deletionSuccessful" : "تم الحذف بنجاح",
+  "theNameList": "اسم القائمة",
+  "style": "الاستايل",
+  "icon": "الإيقونة",
+  "theName": "الاسم",
+  "clickStart": "إضغط هنا للبدء",
+  "cancel": "إلغاء الأمر",
+  "ok": "موافق",
 
 
   "timerScreenTitle": "الوقت",
@@ -55,7 +65,6 @@
   "rescheduleTask": "إعادة جدولة المهمة",
   "modifyTask": "تعديل المهمة",
   "deleteTask": "حذف المهمة",
-  "cancel": "إلغاء الأمر",
   "taskDone": "تم انجاز المهمة"
 }
 

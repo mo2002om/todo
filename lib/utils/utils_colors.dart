@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_circle_color_picker/flutter_circle_color_picker.dart';
+import 'package:todo/app_localizations.dart';
 import 'package:todo/widgets/my_widget_button.dart';
 
 Color randomColor() {
@@ -56,7 +57,7 @@ Future circleColorPicker(BuildContext context, String title,Color colorOld) {
               },
               shadowColor: Theme.of(context).primaryColor,
               color: Theme.of(context).primaryColor,
-              title: "موافق",
+              title: getTranslated(context, "ok"),
               textColor: Theme.of(context).primaryTextTheme.body2.color,
             ),
             new MyWidgetButton(
@@ -65,7 +66,7 @@ Future circleColorPicker(BuildContext context, String title,Color colorOld) {
               },
               shadowColor: Theme.of(context).primaryColor,
               color: Theme.of(context).primaryColor,
-              title: "إلغاء",
+              title: getTranslated(context, "cancel"),
               textColor: Theme.of(context).primaryTextTheme.body2.color,
             ),
           ],

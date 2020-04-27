@@ -207,7 +207,7 @@ class _RootPageState extends State<RootPage> with TickerProviderStateMixin{
                       Icons.add,
                       color: Colors.white,
                     ),
-                    text: "اضغط هنا للبدء",
+                    text: getTranslated(context, "clickStart"),
                     onTap:() async{
                       await _databaseHelper.addMenuStander();
                       initListMenuObject();

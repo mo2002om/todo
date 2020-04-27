@@ -21,6 +21,17 @@
   "YourJobToday": "Your job today",
   "YouHave" : "You have ",
   "tasksToDoToday" : " tasks to do today",
+  "chooseColors": "Choose colors",
+  "thisStyleUsed": "This style is already used in one of your lists",
+  "deletionSuccessful" : "Deletion successful",
+  "theNameList": "The name of the list",
+  "style": "Style",
+  "icon": "Icon",
+  "theName": "The name",
+  "clickStart": "Click here to start",
+  "cancel": "Cancel",
+  "ok": "Ok",
+
 
   "timerScreenTitle": "timer",
   "chartScreenTitle": "chart",
@@ -54,7 +65,6 @@
   "rescheduleTask": "Reschedule this task",
   "modifyTask": "Modify the task",
   "deleteTask": "Delete the task",
-  "cancel": "Cancel",
   "taskDone": "Task Done"
 }
 

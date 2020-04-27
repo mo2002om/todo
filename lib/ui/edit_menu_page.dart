@@ -90,7 +90,7 @@ class _EditMenuPageState extends State<EditMenuPage> with TickerProviderStateMix
                       icon: Icon(Icons.close),
                       color: Colors.black,
                       onPressed: () {
-                        Navigator.of(context).pop();
+                        Navigator.pop(context );
                       },
                     ),
                   ),
@@ -130,7 +130,7 @@ class _EditMenuPageState extends State<EditMenuPage> with TickerProviderStateMix
                                   child: Material(
                                     color: Colors.transparent,
                                     child: Text(
-                                      "The name",
+                                      getTranslated(context, "theName"),
                                       style: TextStyle(),
                                       softWrap: false,
                                     ),
@@ -224,7 +224,7 @@ class _EditMenuPageState extends State<EditMenuPage> with TickerProviderStateMix
               child: Material(
                 color: Colors.transparent,
                 child: Text(
-                  "الإيقونة",
+                  getTranslated(context, "icon"),
                   style: TextStyle(fontSize: 15.0,fontWeight: FontWeight.bold),
                   softWrap: false,
                 ),
@@ -272,7 +272,7 @@ class _EditMenuPageState extends State<EditMenuPage> with TickerProviderStateMix
               child: Material(
                 color: Colors.transparent,
                 child: Text(
-                  "الاستايل",
+                  getTranslated(context, "style"),
                   style: TextStyle(fontSize: 15.0,fontWeight: FontWeight.bold),
                   softWrap: false,
                 ),
@@ -308,7 +308,7 @@ class _EditMenuPageState extends State<EditMenuPage> with TickerProviderStateMix
               child: Material(
                 color: Colors.transparent,
                 child: Text(
-                  "اسم القائمة",
+                  getTranslated(context, "theNameList"),
                   style: TextStyle(fontSize: 15.0,fontWeight: FontWeight.bold),
                   softWrap: false,
                 ),
@@ -340,7 +340,7 @@ class _EditMenuPageState extends State<EditMenuPage> with TickerProviderStateMix
                       textBaseline: TextBaseline.alphabetic
                   ),
                   decoration: InputDecoration(
-                    hintText: getTranslated(context, "createMission"),
+                    hintText: getTranslated(context, "theNameList"),
                     border: InputBorder.none,
                     hintStyle: TextStyle(
                       color: Colors.black,
@@ -398,7 +398,7 @@ class _EditMenuPageState extends State<EditMenuPage> with TickerProviderStateMix
                         onTap: ()async{
                           print("delete");
                           await _databaseHelper.delete(style);
-                          showInSnackBar("تم الحذف بنجاح");
+                          showInSnackBar(getTranslated(context, "deletionSuccessful"));
                           initListStyleObject();
 
                         },
@@ -413,7 +413,7 @@ class _EditMenuPageState extends State<EditMenuPage> with TickerProviderStateMix
                       child: new InkWell(
                         onTap: (){
                           print("delete");
-                          showInSnackBar("هذا الاستايل مستخدم بالفعل في أحد قوائمك");
+                          showInSnackBar(getTranslated(context, "thisStyleUsed"));
 
                         },
                         child: Padding(
@@ -592,10 +592,20 @@ class _WidgetEditStyleState extends State<WidgetEditStyle> with SingleTickerProv
 
   Widget editContainer(){
     return Container(
+      decoration: BoxDecoration(
+          shape: BoxShape.rectangle ,
+          color: Colors.white ,
+          gradient: LinearGradient(colors: [_listColors[1],_listColors[2]], begin: Alignment.topCenter, end: Alignment.bottomCenter),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all()
+      ),
+
       child: Column(
         children: <Widget>[
           Container(
             height: 44,
+            color: Theme.of(context).primaryColor,
+            margin: const EdgeInsets.all(8),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
@@ -609,7 +619,7 @@ class _WidgetEditStyleState extends State<WidgetEditStyle> with SingleTickerProv
                     });
                   },
                 ),
-                new MyTextBody(string: "قم باختيار الألوان",),
+                new MyTextBody(string: getTranslated(context, "chooseColors"),color: Colors.white),
                 new IconButton(
                   icon: new Icon(Icons.check),
                   color: Colors.white,
@@ -631,10 +641,85 @@ class _WidgetEditStyleState extends State<WidgetEditStyle> with SingleTickerProv
               child: new Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
-                  colorCell(0,"الأساسي"),
-                  colorCell(1,"اللون ١"),
-                  colorCell(2,"اللون ٢"),
-                  colorCell(3,"النتيجة",isEnd: true),
+                  new GestureDetector(
+                    onTap: ()async{
+                      Color color = await circleColorPicker(context,"color",_listColors[0]);
+                      if(color == null) return;
+                      print(color);
+                      _listColors.removeAt(0);
+                      setState(() {
+                        _listColors.insert(0, color);
+                      });
+                    },
+                    child: new Container(
+                      height: 64,
+                      width: 64,
+                      decoration: BoxDecoration(
+                          border: Border.all(),
+                        color: _listColors[0],
+
+                      ),
+                      child: new Align(
+                        child: new Icon(Icons.color_lens,color: Colors.white,),
+                      ),
+                    ),
+                  ),
+                  new Expanded(
+                    child: new Container(
+                      height: 64,
+                      color: Colors.orange,
+                      child: new Column(
+                        children: <Widget>[
+                          new Expanded(
+                            child: new GestureDetector(
+                              onTap: ()async{
+                                Color color = await circleColorPicker(context,"top color",_listColors[1]);
+                                if(color == null) return;
+                                print(color);
+                                _listColors.removeAt(1);
+                                setState(() {
+                                  _listColors.insert(1, color);
+                                });
+                              },
+                              child: new Container(
+                                decoration: BoxDecoration(
+                                  border: Border.all(),
+                                  color: _listColors[1],
+
+                                ),
+                                child: new Align(
+                                  child: new Icon(Icons.color_lens,color: Colors.white,),
+                                ),
+                              ),
+                            ),
+                          ),
+                          new Expanded(
+                            child: new GestureDetector(
+                              onTap: ()async{
+                                Color color = await circleColorPicker(context,"bottom color",_listColors[2]);
+                                if(color == null) return;
+                                print(color);
+                                _listColors.removeAt(2);
+                                setState(() {
+                                  _listColors.insert(2, color);
+                                });
+                              },
+                              child: new Container(
+                                decoration: BoxDecoration(
+                                  border: Border.all(),
+                                  color: _listColors[2],
+
+                                ),
+                                child: new Align(
+                                  child: new Icon(Icons.color_lens,color: Colors.white,),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -644,51 +729,7 @@ class _WidgetEditStyleState extends State<WidgetEditStyle> with SingleTickerProv
     );
   }
 
-  Widget colorCell(int index ,String title,{bool isEnd = false}){
-    return new GestureDetector(
-      onTap: ()async{
-        if(isEnd) return;
-        Color color = await circleColorPicker(context,title,_listColors[index]);
-        if(color == null) return;
-        print(color);
-        _listColors.removeAt(index);
-        setState(() {
-          _listColors.insert(index, color);
-        });
-      },
-      child: new Card(
-          child: Column(
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.all(4.0),
-                child: new Container(
-                  height: 64,
-                  width: 64,
-                  decoration: isEnd 
-                      ? BoxDecoration(
-                    shape: BoxShape.rectangle ,
-                    color: Colors.white ,
-                    gradient: LinearGradient(colors: [_listColors[1],_listColors[2]], begin: Alignment.bottomCenter, end: Alignment.topCenter),
-                    border: Border.all()
-                  ) 
-                      : BoxDecoration(
-                      shape:  BoxShape.circle,
-                      color: _listColors[index],
-                      border: Border.all()
-                  ),
-                ),
-              ),
-              new Spacer(),
-              new MyTextBody(string: title,),
-              new Spacer(),
-              new Spacer(),
 
-            ],
-          ),
-      ),
-    );
-  }
-  
   List<Color> _listColors = [];
 
   bool completed(){
